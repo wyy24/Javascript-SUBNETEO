@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUBNETEO w</title>
+</head>
+<body>
+    <br />
+    Direccion de red IP: <input type ="text" maxlength="3" size="3" id="oct1" />.<input type = "text" maxlength="3" size="3" id="oct2" />.<input type="text" maxlength="3" size="3" id="oct3" />.<input type="text" maxlength="3" size="3" id="oct4" /><br /><br />
+    <hr>
+    <label>Por favor ingrese de nuevo el número como entero para convertilo a decimal: </label>
+    <input type="number" id="number" name="number">
+    <input type="button" value="OBTENER BINARIO" onclick="decimal()">
+    <input type="text" id="binary" readonly="true" />
+    <hr>
+    Subredes Requeridas: <input type="text" maxlength="8" size="8" id="nredes" /><br /><br />
+    <input type="button" value="Calcular" onclick="calcular()" /><br /><br />
+    
+    Red Clase:<input type="text" maxlength="3" size="3" id="tipoRed" /><br/><br/>
+    Mascara: <input type="text" maxlength="3" size="3" id="moct1" readonly="true" />.<input type="text" maxlength="3" size="3" id="moct2" readonly="true" />.<input type="text" maxlength="3" size="3" 
+    id="moct3" readonlytrue />.<input type="text" maxlength="3"
+    size="3" id="moct4" readonly="true" /> / <input type="text" 
+    maxlength="3" size="3" id="mbits" readonly="true" /><br />
+
+
+    <script language="javascript" type="text/javascript">
+        function decimal(){
+                var decimal = document.getElementById("number").value;
+                var tempDecimal, rem, binary=0, place=1;
+                tempDecimal=decimal;
+                while(tempDecimal>0){
+                    rem=tempDecimal%2;
+                    binary=binary+(rem*place);
+                    tempDecimal=parseInt(tempDecimal/2);
+                    place=place*10;
+                }
+                document.getElementById("binary").value = binary;
+ 
+            }
+        function calcular(){
+            var dato1, dato2, dato3, dato4, redes, hosts, clase, error;
+            var num, num1, num2, num3, num4, i;
+            dato1 = document.getElementById('oct1').value;
+            dato2 = document.getElementById('oct2').value;
+            dato3 = document.getElementById('oct3').value;
+            dato4 = document.getElementById('oct4').value;
+            redes = document.getElementById('nredes').value;
+            
+            clase = ""
+            error = false;
+            if((dato1 >= 1) && (dato1 <= 126)) clase= "A";
+            if((dato1 >= 128) && (dato1 <= 191)) clase= "B";
+            if((dato1 >= 192) && (dato1 <= 223)) clase= "C";
+            if((dato1 >= 224) &&( dato1 <= 239)) clase= "D";
+            if((dato1 >= 240) && (dato1 <= 255)) clase= "E";
+            if(clase==""){
+                alert("Error: tipo de red");
+                document.getElementById('oct1').focus();
+                error= true;
+            }
+            if(redes==0){
+                alert("Error: número de subredes");
+                document.getElementById('oct1').focus();
+                error=true;
+            }
+            document.getElementById('tipoRed').value = clase;
+            num = 0
+            while (Math.pow(2, num)< redes){
+                num++
+            }
+
+            //mascara por el tipo de red
+            switch(clase){
+                case'A':
+                num1 = 255;
+                num2 = 0;
+                num3 = 0;
+                num4 = 4; 
+                //num =numero de bits
+                document.getElementById("mbits").value = 8 + num;
+                if ( num >=16){
+                    num = num -16;
+                    num2= 255;
+                    num3 = 255;
+                    num4 = Math.pow(2, num)-1
+                    num4 = num4 << (8-num);
+                }
+                else{
+                    if(num >=8){
+                        num = num -8;
+                        num2 = 255;
+                        num4 = 0;
+                        num3 = Math.pow(2, num)-1;
+                        num3 = num3 << (8-num); //
+                    }
+                else{
+                    //1 byte para subredes
+                    num2 = Math.pow(2, num)-1;
+                    num2 = num2 <<(8-num); //
+                    num3 = 0;
+                    num4 = 0;
+                }
+                }
+                break;
+                case 'B':
+                    num1 = 255;
+                    num2 = 255;
+                    num3 = 0;
+                    num4 = 0;
+                    document.getElementById('mbits').value = 16 + num;
+                    //numero de redes 1 o 2 bytes
+                    if (num >=8){
+                        num = num -8;
+                        num3 = 255;
+                        num4=Math.pow(2, num) - 1;
+                        num4 = num4 << (8-num); //
+                    }
+                    else{
+                        num3 = Math.pow(2, num)- 1;
+                        num3 = num3 <<(8-num)  //
+                    }
+                break;
+                case 'C':
+                    num1 = 255;
+                    num2 = 255;
+                    num3 = 255;
+                    num4 = 0;
+                    document.getElementById('mbits').value = 24 + num;
+                    num4 = Math.pow(2, num)-1;
+                    num4 = num4 <<(8-num);    //
+
+                case 'D':
+                    num1= 0;
+                    num2=0;
+                    num3=0;
+                    num4 = 0;
+                    document.getElementById('mbits').value = 0 + num;
+                    num4 = Math.pow(2,num)-1;
+                    num4 = num4 <<(8-num);    //
+                
+                case 'E':
+                    //mascara por defecto sin submeteo
+                    num1=0;
+                    num2=0;
+                    num3=0;
+                    num4=0;
+                    document.getElementById('mbits').value = 0 + num;
+                    num4= Math.pow(2, num)-1;
+                    num4 = num4 <<(8-num);    //
+                break;
+            }
+            document.getElementById('moct1').value = num1;
+            document.getElementById('moct2').value = num2;
+            document.getElementById('moct3').value = num3;
+            document.getElementById('moct4').value = num3;
+        }
+    </script>
+
+    <style>
+        #binary{
+            min-width: 100px;
+        }
+    </style>
+
+</body>
+</html>
